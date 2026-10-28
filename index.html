@@ -1,55 +1,40 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8"/>
-<title>地図ピンサンプル</title>
-<style>#map{width:100%;height:90vh;}</style>
+  <meta charset="UTF-8" />
+  <title>Google Maps表示テスト</title>
+  <style>
+    #map {
+      width: 100%;
+      height: 90vh;
+    }
+  </style>
 </head>
 <body>
-<h2>公共トイレ地図</h2>
-<input type="file" id="csvInput" accept=".csv"/>
-<div id="map"></div>
-<script>
-let map;
-function initMap(){
-  map=new google.maps.Map(document.getElementById('map'),{
-    center:{lat:36.64,lng:136.63},
-    zoom:13
-  });
-}
-function parseCSV(text){
-  const lines=text.trim().split('\n');
-  const header=lines[0].split(',');
-  const latIdx=header.indexOf('緯度');
-  const lngIdx=header.indexOf('経度');
-  const nameIdx=header.indexOf('名称');
-  if(latIdx<0 || lngIdx<0){
-    alert('緯度または経度の列がありません');
-    return;
-  }
-  for(let i=1;i<lines.length;i++){
-    const row=lines[i].split(',');
-    const lat=parseFloat(row[latIdx]);
-    const lng=parseFloat(row[lngIdx]);
-    if(!isNaN(lat) && !isNaN(lng)){
+  <h2>Google Mapsが表示されます</h2>
+  <div id="map"></div>
+
+  <script>
+    function initMap() {
+      const center = { lat: 36.64, lng: 136.63 }; // 内灘町付近の位置
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 14,
+        center: center,
+      });
+
+      // 中心にマーカーをひとつ置く（動作確認用）
       new google.maps.Marker({
-        position:{lat:lat,lng:lng},
-        map:map,
-        title:row[nameIdx]||'名称なし'
+        position: center,
+        map: map,
+        title: "ここが内灘町",
       });
     }
-  }
-}
-document.getElementById('csvInput').addEventListener('change',e=>{
-  if(e.target.files.length>0){
-    const fr=new FileReader();
-    fr.onload=evt=>{
-      parseCSV(evt.target.result);
-    };
-    fr.readAsText(e.target.files[0],'UTF-8');
-  }
-});
-</script>
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+  </script>
+
+  <script
+    src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
+    async
+    defer
+  ></script>
 </body>
 </html>
