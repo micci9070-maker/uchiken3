@@ -1,87 +1,55 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>公共トイレ地図ピン表示</title>
-<style>
-  #map {
-    height: 90vh;
-    width: 100%;
-  }
-</style>
+<meta charset="UTF-8"/>
+<title>地図ピンサンプル</title>
+<style>#map{width:100%;height:90vh;}</style>
 </head>
 <body>
-<h1>公共トイレの位置表示</h1>
-
-<input type="file" id="csvFileInput" accept=".csv" />
-<p>「173657_public_toilet.csv」を選択してください</p>
-
+<h2>公共トイレ地図</h2>
+<input type="file" id="csvInput" accept=".csv"/>
 <div id="map"></div>
-
 <script>
-// Google Maps APIの初期化
 let map;
-function initMap() {
-  map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: 36.64, lng: 136.63 }, // 石川県内灘町付近中心
-    zoom: 13,
+function initMap(){
+  map=new google.maps.Map(document.getElementById('map'),{
+    center:{lat:36.64,lng:136.63},
+    zoom:13
   });
 }
-
-// CSVをパースしてピンを立てる
-function parseCSVAndPlot(csvText) {
-  const lines = csvText.split('\n');
-  const header = lines[0].split(',');
-
-  // 緯度と経度カラム名
-  const latitudeKey = '緯度';
-  const longitudeKey = '経度';
-  const nameKey = '名称';
-
-  const latIndex = header.indexOf(latitudeKey);
-  const lngIndex = header.indexOf(longitudeKey);
-  const nameIndex = header.indexOf(nameKey);
-
-  if (latIndex === -1 || lngIndex === -1) {
-    alert('CSVに緯度・経度の列が見つかりません。');
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  const header=lines[0].split(',');
+  const latIdx=header.indexOf('緯度');
+  const lngIdx=header.indexOf('経度');
+  const nameIdx=header.indexOf('名称');
+  if(latIdx<0 || lngIdx<0){
+    alert('緯度または経度の列がありません');
     return;
   }
-
-  for (let i = 1; i < lines.length; i++) {
-    const row = lines[i].split(',');
-
-    if (row.length <= Math.max(latIndex, lngIndex)) continue;
-
-    const lat = parseFloat(row[latIndex]);
-    const lng = parseFloat(row[lngIndex]);
-    const name = row[nameIndex] || '名称不明';
-
-    if (!isNaN(lat) && !isNaN(lng)) {
-      const marker = new google.maps.Marker({
-        position: { lat: lat, lng: lng },
-        map: map,
-        title: name,
+  for(let i=1;i<lines.length;i++){
+    const row=lines[i].split(',');
+    const lat=parseFloat(row[latIdx]);
+    const lng=parseFloat(row[lngIdx]);
+    if(!isNaN(lat) && !isNaN(lng)){
+      new google.maps.Marker({
+        position:{lat:lat,lng:lng},
+        map:map,
+        title:row[nameIdx]||'名称なし'
       });
     }
   }
 }
-
-document.getElementById('csvFileInput').addEventListener('change', function (e) {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function (event) {
-    parseCSVAndPlot(event.target.result);
-  };
-  reader.readAsText(file, 'UTF-8');
+document.getElementById('csvInput').addEventListener('change',e=>{
+  if(e.target.files.length>0){
+    const fr=new FileReader();
+    fr.onload=evt=>{
+      parseCSV(evt.target.result);
+    };
+    fr.readAsText(e.target.files[0],'UTF-8');
+  }
 });
 </script>
-
-<!-- Google Maps API -->
-<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
-  async defer></script>
-
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
 </body>
 </html>
